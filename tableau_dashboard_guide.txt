@@ -1,0 +1,62 @@
+TABLEAU DASHBOARD GUIDE
+Project: Movie and OTT Content Analysis | Course 25CAH-727
+
+1. Connect
+- Open Tableau Desktop or Tableau Public.
+- Connect to Text File and select movie_ott_dataset.csv, OR connect to MySQL and select ott_analytics.ott_content.
+- Check data types: show_id = String; release_year = Number (whole); date_added = Date; content_type, genre, country, rating = String.
+- If country/rating/director has null values, keep them visible as Unknown where appropriate.
+
+2. Create calculated fields
+A. Total Titles (optional KPI): COUNTD([show_id])
+B. Movies: COUNTD(IF [content_type] = "Movie" THEN [show_id] END)
+C. TV Shows: COUNTD(IF [content_type] = "TV Show" THEN [show_id] END)
+D. Recent/Earlier:
+IF [release_year] >= 2020 THEN "2020 onwards"
+ELSEIF [release_year] >= 2010 THEN "2010–2019"
+ELSE "Before 2010"
+END
+E. Genre Rank:
+RANK(COUNTD([show_id]))
+Set Compute Using = genre.
+F. Running Total:
+RUNNING_SUM(COUNTD([show_id]))
+Set Compute Using = release_year; sort ascending.
+G. Rating Group:
+IF ISNULL([rating]) OR [rating] = "" THEN "Unknown"
+ELSE [rating]
+END
+
+3. Worksheets
+- KPI - Total Titles: Text mark with COUNTD(show_id).
+- Content Mix: content_type to Color; COUNTD(show_id) to Angle; use pie/donut if appropriate.
+- Genre Ranking: genre to Rows; COUNTD(show_id) to Columns; sort descending; add labels.
+- Release Trend: release_year to Columns; COUNTD(show_id) to Rows; content_type to Color; use line chart.
+- Rating Distribution: rating to Rows; COUNTD(show_id) to Columns; sort descending.
+- Country Ranking: country to Rows; COUNTD(show_id) to Columns; filter Top 10 by field if desired.
+- Recent vs Earlier: use the calculated field as Color and count titles.
+
+4. Dashboard assembly
+- Create a dashboard with a fixed size around 1200 x 800 or Automatic.
+- Top: title and 3 KPI cards (Total Titles, Movies, TV Shows).
+- Middle: Release Trend and Genre Ranking.
+- Bottom: Rating Distribution and Top Countries.
+- Add filters for content_type, release_year, genre, rating, and country.
+- On each filter menu choose Apply to Worksheets > All Using This Data Source.
+- Use Dashboard > Actions > Filter to let clicking a genre bar filter the other charts.
+- Add a Reset Filters text/button only if supported by your Tableau version; otherwise tell users to use Revert.
+- Use Device Preview to inspect desktop and phone layouts.
+- Add a Story with 3 points: Catalog Overview, Genre & Rating Patterns, Release-Year Trends.
+- Publish to Tableau Public only if the dataset contains no confidential or personal data.
+
+5. Table calculations
+- For Rank: right-click measure > Quick Table Calculation > Rank; Edit Table Calculation to choose genre.
+- For Running Total: Quick Table Calculation > Running Total; ensure year is sorted ascending.
+- For percentage of total: Quick Table Calculation > Percent of Total; verify addressing and partitioning.
+
+6. Expected interpretation (do not pre-fill with invented findings)
+- Identify the highest-count genre from the Genre Ranking worksheet.
+- Compare Movie and TV Show counts from Content Mix.
+- Identify years with unusually high or low title counts from Release Trend.
+- Check whether missing metadata is concentrated in a country, rating, or director field.
+- Write conclusions only after running the dashboard against the dataset.
